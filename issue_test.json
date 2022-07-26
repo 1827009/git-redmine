@@ -1,0 +1,15 @@
+{
+    "issue": {
+        "project_id": 1,
+        "subject": "test1",
+        "tracker_id": 1,
+        "description": "message",
+        "uploads": [
+            {
+                "token": "12.1aba09fc693e46b70462b5ceb5eae57637c5b2cac2f895310910c392f50e29df",
+                "filename": "image.png",
+                "content_type": "image/png"
+            }
+        ]
+    }
+}
