@@ -30,7 +30,7 @@ def upload_redmine(filepath):
     return r.text
 
 url="http://localhost:3000/issues/6.json"
-wikiurl="http://localhost:3000/projects/the-first/wiki/Wiki.json"
+wikiurl="http://localhost:3000/projects/the-first/wiki/title1.json"
 fileurl="http://localhost:3000/attachments/1"
 upurl="http://localhost:3000/uploads.json?filename=image.png"
 myheaders = {
@@ -43,46 +43,45 @@ filepath='./inu.png'
 #     {'.png':{}}
 # }
 
-textdata=upload_redmine(filepath)
-print(textdata)
+# textdata=upload_redmine(filepath)
+# print(textdata)
 
 
-# payload = {
-#     #  "wiki_page": {
-#     #     "title":"title2",
-#     #     "text": "This is a wiki test page.",
-#     # }
-#     "issue": {
-#         # "project_id": 1,#プロジェクト選択
-#         # "subject": "apirequests-test5",#チケットの名前
-#         # "status_id": 1,#ステータス
-#         # "tracker_id": 2,#トラッカー
-#         # "priority_id": 1,#優先度
-#         #"assigned_to_id":1,#担当者
-#         # "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",#説明
-#         # "done_ratio":20,#進行度
-#         "uploads": [
-#             {
-#                 "token": "15.1aba09fc693e46b70462b5ceb5eae57637c5b2cac2f895310910c392f50e29df",
-#                 "filename": "image.png",
-#                 "content_type": "image/png"
-#             }
-#         ]
-#     }
-# }
+payload = {
+    "wiki_page": {
+        "text": "This is a wiki test page.",
+    }
+    # "issue": {
+    #     # "project_id": 1,#プロジェクト選択
+    #     # "subject": "apirequests-test5",#チケットの名前
+    #     # "status_id": 1,#ステータス
+    #     # "tracker_id": 2,#トラッカー
+    #     # "priority_id": 1,#優先度
+    #     #"assigned_to_id":1,#担当者
+    #     # "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",#説明
+    #     # "done_ratio":20,#進行度
+    #     "uploads": [
+    #         {
+    #             "token": "15.1aba09fc693e46b70462b5ceb5eae57637c5b2cac2f895310910c392f50e29df",
+    #             "filename": "image.png",
+    #             "content_type": "image/png"
+    #         }
+    #     ]
+    # }
+}
 
 #r=requests.post(upurl,headers=myheaders,data=body)
-# r = requests.put(wikiurl,headers=myheaders,data=json.dumps(payload))
+r = requests.put(wikiurl,headers=myheaders,data=json.dumps(payload))
 
-# logging.basicConfig()
-# logging.getLogger().setLevel(logging.DEBUG)
-# requests_log = logging.getLogger("requests.packages.urllib3")
-# requests_log.setLevel(logging.DEBUG)
-# requests_log.propagate = True
-# 期待するコード = 201
-# if r.status_code != 期待するコード:
-#        raise RuntimeError(f"{requests.code}")  
-# print(r.text)
+logging.basicConfig()
+logging.getLogger().setLevel(logging.DEBUG)
+requests_log = logging.getLogger("requests.packages.urllib3")
+requests_log.setLevel(logging.DEBUG)
+requests_log.propagate = True
+期待するコード = 201
+if r.status_code != 期待するコード:
+       raise RuntimeError(f"{requests.code}")  
+print(r.text)
 
 
 
