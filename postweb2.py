@@ -11,6 +11,7 @@ import logging
 import http.client
 from dotenv import load_dotenv
 from collections import OrderedDict
+from ast import literal_eval
 
 load_dotenv(verbose=True)
 API_KEY = os.environ.get("API_KEY")
@@ -42,12 +43,13 @@ def upload(filepath):
     if r.status_code != expected_result:
         raise RuntimeError(f"{requests.code}")
     log.debug(r.text)
+    response_data = literal_eval(r.content.decode("utf8"))
+
     with open("./token_data.json") as f:
         d_update = json.load(f, object_pairs_hook=OrderedDict)
-    d_update["upload"] = r.content
+
+    d_update[f"data{len(d_update)}"] = response_data
     with open("./token_data.json", "w") as f:
-        # json.dump(r.content, f, indent=2, ensure_ascii=False)
-        # json.dump(r.text, f, indent=2, ensure_ascii=False)
         json.dump(d_update, f, indent=2, ensure_ascii=False)
 
 
