@@ -1,12 +1,12 @@
 {
     "issue": {
         "project_id": 1,
-        "subject": "apirequests-test6",
+        "subject": "apirequests-issue",
         "status_id": 1,
         "tracker_id": 2,
         "priority_id": 1,
         "assigned_to_id":1,
         "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
-        "done_ratio":80
+        "done_ratio":0
     }
 }
