@@ -12,14 +12,47 @@ import http.client
 from dotenv import load_dotenv
 from collections import OrderedDict
 from ast import literal_eval
+from datetime import datetime
 
 load_dotenv(verbose=True)
-API_KEY1 = os.environ.get("API_KEY2")
+API_KEY1 = os.environ.get("API_KEY1")
 SERVER = os.environ.get("SERVER")
-PORT1 = os.environ.get("PORT2")
+PORT1 = os.environ.get("PORT1")
 
 logging.basicConfig(level=logging.DEBUG)
 http.client.HTTPConnection.debuglevel = 1
+
+
+def DownloadFile(url):
+
+    DOWNLOAD_SAVE_DIR = os.getenv("DOWNLOAD_SAVE_DIR")
+    myheaders = {
+        "Content-Type": "image/jpeg",
+        "X-Redmine-API-Key": API_KEY1,
+    }
+    response = requests.get(url, headers=myheaders)
+
+    responseurl = response.url
+    print(responseurl)
+    # ★ポイント3
+    contentType = response.headers["Content-Type"]
+
+    response = requests.get(responseurl)
+    contentType = response.headers["Content-Type"]
+
+    contentDisposition = response.headers["content-disposition"]
+    ATTRIBUTE = "filename="
+    fileName = contentDisposition[contentDisposition.find(ATTRIBUTE) + len(ATTRIBUTE) :]
+
+    # ★ポイント4
+    saveFileName = datetime.now().strftime("%Y%m%d_%H%M%S_") + fileName
+    saveFilePath = os.path.join(DOWNLOAD_SAVE_DIR, saveFileName)
+    with open(saveFilePath, "wb") as saveFile:
+        saveFile.write(response.content)
+
+
+def get_attach():
+    upurl = f"http://{SERVER}:{PORT1}/uploads.json"
 
 
 def upload(filepath):
@@ -27,7 +60,7 @@ def upload(filepath):
     path, name = os.path.split(filepath)
     base, ext = os.path.splitext(name)
 
-    upurl = f"http://{SERVER}:{PORT1}/uploads.json?filepath={name}"
+    upurl = f"http://{SERVER}:{PORT1}/uploads.json?filename={name}"
 
     log.debug(f"upurl {upurl}")
 
@@ -38,6 +71,46 @@ def upload(filepath):
     with open(filepath, "rb") as fh:
         body = fh.read()
 
+    r = requests.post(upurl, headers=myheaders, data=body)
+    expected_result = 201
+    if r.status_code != expected_result:
+        raise RuntimeError(f"{requests.code}")
+    log.debug(r.text)
+    response_data = literal_eval(r.content.decode("utf8"))
+
+    with open("./token_data.json") as f:
+        d_update = json.load(f, object_pairs_hook=OrderedDict)
+
+    d_update[f"data{len(d_update)}"] = response_data
+    with open("./token_data.json", "w") as f:
+        json.dump(d_update, f, indent=2, ensure_ascii=False)
+
+
+def upload_url(filepath):
+    myheaders = {
+        "Content-Type": "image/jpeg",
+        "X-Redmine-API-Key": API_KEY1,
+    }
+
+    res_data = requests.get(filepath, headers=myheaders)
+    local_filename = filepath.split("/")[-1]
+    with open(local_filename, "wb") as aaa:
+        aaa.write(res_data.content)
+
+    with open(local_filename, "rb") as fh:
+        body = fh.read()
+
+    assert os.path.exists(local_filename)
+    path, name = os.path.split(local_filename)
+    base, ext = os.path.splitext(name)
+
+    upurl = f"http://{SERVER}:{PORT1}/uploads.json?filename={name}"
+
+    log.debug(f"upurl {upurl}")
+    myheaders = {
+        "Content-Type": "application/octet-stream",
+        "X-Redmine-API-Key": API_KEY1,
+    }
     r = requests.post(upurl, headers=myheaders, data=body)
     expected_result = 201
     if r.status_code != expected_result:
@@ -122,7 +195,10 @@ def main():
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
     # text = ticket_get()
-    text = ticket_create("./issue_get.json")
+    # text = ticket_create("./issue_get.json")
+    # text = upload("./inu.jpg")
+    text = upload_url("http://localhost:3000/attachments/download/5/inu.jpg")
+    # text = DownloadFile("http://localhost:3000/attachments/download/5/inu.jpg")
     print(text)
 
 
