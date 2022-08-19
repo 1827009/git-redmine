@@ -7,6 +7,13 @@
         "priority_id": 1,
         "assigned_to_id":1,
         "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
-        "done_ratio":0
+        "done_ratio":0,
+        "uploads": [
+                     {
+                         "token": "14.1aba09fc693e46b70462b5ceb5eae57637c5b2cac2f895310910c392f50e29df",
+                         "filename": "inu.png",
+                         "content_type": "image/png"
+                    }
+                ]
+                }      
     }
-}

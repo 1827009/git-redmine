@@ -6,117 +6,88 @@
         "id": 1,
         "name": "Redmine Admin"
       },
+      "parent": {
+        "id": 1
+      },
       "subject": "apirequests-issue",
       "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
       "start_date": "2022-08-05",
-      "due_date": null,
-      "done_ratio": 0,
+      "due_date": "2022-09-23",
+      "done_ratio": 10,
       "is_private": false,
-      "estimated_hours": null,
+      "estimated_hours": 500.0,
+      "total_estimated_hours": 500.0,
+      "spent_hours": 15.0,
+      "total_spent_hours": 15.0,
       "created_on": "2022-08-05T07:44:32Z",
-      "updated_on": "2022-08-05T07:44:32Z",
+      "updated_on": "2022-08-10T06:21:03Z",
       "closed_on": null,
+      "journals": [
+        {
+          "id": 1,
+          "user": {
+            "id": 1,
+            "name": "Redmine Admin"
+          },
+          "notes": "複製テスト２",
+          "created_on": "2022-08-10T06:21:03Z",
+          "private_notes": false,
+          "details": [
+            {
+              "property": "attachment",
+              "name": "13",
+              "old_value": null,
+              "new_value": "inu (5).jpg"
+            },
+            {
+              "property": "attr",
+              "name": "due_date",
+              "old_value": null,
+              "new_value": "2022-09-23"
+            },
+            {
+              "property": "attr",
+              "name": "done_ratio",
+              "old_value": "0",
+              "new_value": "10"
+            },
+            {
+              "property": "attr",
+              "name": "estimated_hours",
+              "old_value": null,
+              "new_value": "500.0"
+            },
+            {
+              "property": "attr",
+              "name": "parent_id",
+              "old_value": null,
+              "new_value": "1"
+            }
+          ]
+        }
+      ],
       "project_id": 1,
       "status_id": 1,
       "tracker_id": 2,
       "priority_id": 1,
-      "assigned_to_id": 1
-    }
-  },
-  "data1": {
-    "issue": {
-      "id": 4,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      },
-      "subject": "apirequests-issue",
-      "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
-      "start_date": "2022-08-05",
-      "due_date": null,
-      "done_ratio": 0,
-      "is_private": false,
-      "estimated_hours": null,
-      "created_on": "2022-08-05T07:27:07Z",
-      "updated_on": "2022-08-05T07:27:07Z",
-      "closed_on": null,
-      "project_id": 1,
-      "status_id": 1,
-      "tracker_id": 2,
-      "priority_id": 1,
-      "assigned_to_id": 1
-    }
-  },
-  "data2": {
-    "issue": {
-      "id": 3,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      },
-      "subject": "apirequests-issue",
-      "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
-      "start_date": "2022-08-05",
-      "due_date": null,
-      "done_ratio": 0,
-      "is_private": false,
-      "estimated_hours": null,
-      "created_on": "2022-08-05T06:05:03Z",
-      "updated_on": "2022-08-05T06:05:03Z",
-      "closed_on": null,
-      "project_id": 1,
-      "status_id": 1,
-      "tracker_id": 2,
-      "priority_id": 1,
-      "assigned_to_id": 1
-    }
-  },
-  "data3": {
-    "issue": {
-      "id": 2,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      },
-      "subject": "apirequests-issue",
-      "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
-      "start_date": "2022-08-05",
-      "due_date": null,
-      "done_ratio": 0,
-      "is_private": false,
-      "estimated_hours": null,
-      "created_on": "2022-08-05T06:04:48Z",
-      "updated_on": "2022-08-05T06:04:48Z",
-      "closed_on": null,
-      "project_id": 1,
-      "status_id": 1,
-      "tracker_id": 2,
-      "priority_id": 1,
-      "assigned_to_id": 1
-    }
-  },
-  "data4": {
-    "issue": {
-      "id": 1,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      },
-      "subject": "apirequests-issue",
-      "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
-      "start_date": "2022-08-04",
-      "due_date": null,
-      "done_ratio": 0,
-      "is_private": false,
-      "estimated_hours": null,
-      "created_on": "2022-08-04T08:27:41Z",
-      "updated_on": "2022-08-04T08:27:41Z",
-      "closed_on": null,
-      "project_id": 1,
-      "status_id": 1,
-      "tracker_id": 2,
-      "priority_id": 1,
-      "assigned_to_id": 1
+      "assigned_to_id": 1,
+      "uploads": [
+        {
+          "id": 13,
+          "filename": "inu (5).jpg",
+          "filesize": 203423,
+          "content_type": "image/jpeg",
+          "description": "",
+          "content_url": "http://localhost:3000/attachments/download/13/inu%20(5).jpg",
+          "thumbnail_url": "http://localhost:3000/attachments/thumbnail/13",
+          "author": {
+            "id": 1,
+            "name": "Redmine Admin"
+          },
+          "created_on": "2022-08-10T06:20:59Z",
+          "token": "4.1aba09fc693e46b70462b5ceb5eae57637c5b2cac2f895310910c392f50e29df"
+        }
+      ]
     }
   }
 }
