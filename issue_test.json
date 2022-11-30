@@ -1,19 +1,12 @@
 {
-    "issue": {
-        "project_id": 1,
-        "subject": "apirequests-issue",
-        "status_id": 1,
-        "tracker_id": 2,
-        "priority_id": 1,
-        "assigned_to_id":1,
-        "description": "APIを利用してPythonRequestsからチケットを作成できるかのテスト",
-        "done_ratio":0,
-        "uploads": [
-                     {
-                         "token": "14.1aba09fc693e46b70462b5ceb5eae57637c5b2cac2f895310910c392f50e29df",
-                         "filename": "inu.png",
-                         "content_type": "image/png"
-                    }
-                ]
-                }      
+    "time_entry": {
+      "issue_id":1314,
+      "user_id":1,
+      "activity_id":8,
+      "hours":15.0,
+      "comments":"時間を記録コメント",
+      "spent_on":"2022-08-22",
+      "created_on":"2022-08-22T07:28:23Z",
+      "updated_on":"2022-08-22T07:28:23Z"
+      }
     }

@@ -201,6 +201,17 @@ def ticket_update(filepath, ticketnum, severnum=0):
     r = requests.put(url, headers=myheaders, data=body)
 
 
+def time_entry(filepath, ticketnum, severnum=0):
+    with open(filepath, "rb") as fh:
+        body = fh.read()
+    url = f"http://{SERVER}:{PORT[severnum]}/time_entries.json"
+    myheaders = {
+        "Content-Type": "application/json",
+        "X-Redmine-API-Key": API_KEY[severnum],
+    }
+    r = requests.post(url, headers=myheaders, data=body)
+
+
 def wiki_create_update(filepath, severnum=0):
     with open(filepath, "rb") as fh:
         jdata = json.load(fh)
@@ -217,8 +228,10 @@ def main():
     requests_log = logging.getLogger("requests.packages.urllib3")
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
-    text = ticket_get(ticketnum=5)
-    text = ticket_copycreate("./issue_get.json", 1, 1)
+    # text = ticket_get(ticketnum=5)
+    # text = ticket_update("./issue_test.json", 1313, 0)
+    text = time_entry("./issue_test.json", 1313, 0)
+    # text = ticket_copycreate("./issue_get.json", 1, 0)
     # text = upload("./inu.jpg")
     # text = download_url("http://localhost:3000/attachments/download/5")
     print(text)
