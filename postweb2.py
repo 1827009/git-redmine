@@ -16,7 +16,7 @@ from datetime import datetime
 
 load_dotenv(verbose=True)
 API_KEY = [os.environ.get("API_KEY1"), os.environ.get("API_KEY2")]
-SERVER = os.environ.get("SERVER")
+SERVER = [os.environ.get("SERVER1"), os.environ.get("SERVER2")]
 PORT = [os.environ.get("PORT1"), os.environ.get("PORT2")]
 
 
@@ -29,7 +29,7 @@ def upload(filepath, servernum=0):
     path, name = os.path.split(filepath)
     base, ext = os.path.splitext(name)
 
-    upurl = f"http://{SERVER}:{PORT[servernum]}/uploads.json?filename={name}"
+    upurl = f"http://{SERVER[servernum]}:{PORT[servernum]}/uploads.json?filename={name}"
 
     log.debug(f"upurl {upurl}")
 
@@ -105,7 +105,7 @@ def download_url(filepath, get=0):
 
 
 def countticket(getnum=0):
-    url = f"http://{SERVER}:{PORT[getnum]}/issues.json"
+    url = f"http://{SERVER[getnum]}:{PORT[getnum]}/issues.json"
     r = requests.get(url)
     response_data = json.loads(r.text)
     return response_data["issues"][0]["id"]
@@ -122,7 +122,7 @@ def ticket_get(portnum=0, ticketnum=0):
         if ticketnum != 0:
             page = ticketnum - 1
 
-        url = f"http://{SERVER}:{PORT[portnum]}/issues/{page+1}.json?limit=100&page={page+1}&include=relations,attachments,journals"
+        url = f"http://{SERVER[portnum]}:{PORT[portnum]}/issues/{page+1}.json?limit=100&page={page+1}&include=relations,attachments,journals"
         try:
             r = requests.get(url)
             response_data = json.loads(r.text)
@@ -178,7 +178,7 @@ def ticket_get(portnum=0, ticketnum=0):
 def ticket_copycreate(filepath, num=1, severnum=0):
     with open(filepath, encoding="utf-8") as fh:
         body = json.load(fh, object_pairs_hook=OrderedDict)
-    url = f"http://{SERVER}:{PORT[severnum]}/issues.json"
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/issues.json"
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
@@ -193,7 +193,7 @@ def ticket_copycreate(filepath, num=1, severnum=0):
 def ticket_update(filepath, ticketnum, severnum=0):
     with open(filepath, "rb") as fh:
         body = fh.read()
-    url = f"http://{SERVER}:{PORT[severnum]}/issues/{ticketnum}.json"
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/issues/{ticketnum}.json"
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
@@ -204,7 +204,7 @@ def ticket_update(filepath, ticketnum, severnum=0):
 def time_entry(filepath, ticketnum, severnum=0):
     with open(filepath, "rb") as fh:
         body = fh.read()
-    url = f"http://{SERVER}:{PORT[severnum]}/time_entries.json"
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/time_entries.json"
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
@@ -216,7 +216,7 @@ def wiki_create_update(filepath, severnum=0):
     with open(filepath, "rb") as fh:
         jdata = json.load(fh)
 
-    url = f"http://{SERVER}:{PORT[severnum]}/projects/{jdata['wiki_page']['project']}/wiki/{jdata['wiki_page']['title']}.json"
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{jdata['wiki_page']['project']}/wiki/{jdata['wiki_page']['title']}.json"
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
