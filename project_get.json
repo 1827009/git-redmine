@@ -1,0 +1,40 @@
+{
+  "projects": [
+    {
+      "id": 2,
+      "name": "bar",
+      "identifier": "bar",
+      "description": "test2",
+      "status": 1,
+      "is_public": true,
+      "inherit_members": false,
+      "created_on": "2022-12-01T06:03:34Z",
+      "updated_on": "2022-12-01T06:03:34Z"
+    },
+    {
+      "id": 3,
+      "name": "baz",
+      "identifier": "baz",
+      "description": "test3",
+      "status": 1,
+      "is_public": true,
+      "inherit_members": false,
+      "created_on": "2022-12-01T06:03:47Z",
+      "updated_on": "2022-12-01T06:03:47Z"
+    },
+    {
+      "id": 1,
+      "name": "foo",
+      "identifier": "foo",
+      "description": "test1",
+      "status": 1,
+      "is_public": true,
+      "inherit_members": false,
+      "created_on": "2022-12-01T06:03:26Z",
+      "updated_on": "2022-12-01T06:03:26Z"
+    }
+  ],
+  "total_count": 3,
+  "offset": 0,
+  "limit": 25
+}

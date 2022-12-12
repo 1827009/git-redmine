@@ -110,85 +110,85 @@ def countticket(getnum=0):
     response_data = json.loads(r.text)
     return response_data["issues"][0]["id"]
 
-
-# 第二引数指定で個別取得、指定なしで一括取得
-def ticket_get(portnum=0, ticketnum=0):
-    if ticketnum == 0:
-        count = countticket(portnum)
+# プロジェクト名指定でプロジェクトのjson、未指定でプロジェクトの一覧を取得
+def project_get(projectname="", portnum=0):
+    if projectname == "":
+        url = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects.json?key={API_KEY[portnum]}"
     else:
-        count = 1
+        url = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects/{projectname}.json?key={API_KEY[portnum]}"
+    try:
+        r = requests.get(url)
+        response_data = json.loads(r.text)
+        
+        with open("./project_get.json", "w", encoding="utf-8") as f:
+            json.dump(response_data, f, indent=2, ensure_ascii=False)
+        return response_data['projects']
 
-    for page in range(count):
-        if ticketnum != 0:
-            page = ticketnum - 1
+    except:
+        print("プロジェクトは存在しません")
 
-        url = f"http://{SERVER[portnum]}:{PORT[portnum]}/issues/{page+1}.json?limit=100&page={page+1}&include=relations,attachments,journals"
-        try:
-            r = requests.get(url)
-            response_data = json.loads(r.text)
-            with open("./issue_get.json", encoding="utf-8") as f:
-                dict_data = json.load(f, object_pairs_hook=OrderedDict)
+# 作成ができないバグ発生中
+def project_upload(projectpash, severnum=0):
+    with open(projectpash, encoding="utf-8") as f:
+        dict_data = json.load(f, object_pairs_hook=OrderedDict)
 
-            dict_set = {}
-            dict_set = response_data
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects.json?key={API_KEY[severnum]}"
 
-            # projectid setting
-            dict_set["issue"]["project_id"] = dict_set["issue"]["project"]["id"]
-            del dict_set["issue"]["project"]
-
-            # statusid setting
-            dict_set["issue"]["status_id"] = dict_set["issue"]["status"]["id"]
-            del dict_set["issue"]["status"]
-
-            # trackerid setting
-            dict_set["issue"]["tracker_id"] = dict_set["issue"]["tracker"]["id"]
-            del dict_set["issue"]["tracker"]
-
-            # priorityid setting
-            dict_set["issue"]["priority_id"] = dict_set["issue"]["priority"]["id"]
-            del dict_set["issue"]["priority"]
-
-            # assigned_to id setting
-            dict_set["issue"]["assigned_to_id"] = dict_set["issue"]["assigned_to"]["id"]
-            del dict_set["issue"]["assigned_to"]
-
-            # attachments setting
-            try:
-                dict_set["issue"]["uploads"] = dict_set["issue"]["attachments"]
-                # dict_set["issue"]["uploads"][0]["filename"]
-                # dict_set["issue"]["uploads"][0]["filename"] = dict_set["issue"]["attachments"][0]["filename"]
-                # dict_set["issue"]["uploads"][0]["content_type"] = dict_set["issue"]["attachments"][0]["content_type"]
-                # dict_set["issue"]["uploads"][0]["description"] = dict_set["issue"]["attachments"][0]["description"]
-                file = download_url(dict_set["issue"]["attachments"][0]["content_url"], portnum)
-                text = upload(f"./{file}", 1)
-                dict_set["issue"]["uploads"][0]["token"] = text["upload"]["token"]
-            except:
-                print("添付ファイルなし")
-
-            del dict_set["issue"]["attachments"]
-
-            # data is complete
-            dict_data[f"data{len(dict_data)}"] = dict_set
-            with open("./issue_get.json", "w", encoding="utf-8") as f:
-                json.dump(dict_data, f, indent=2, ensure_ascii=False)
-        except:
-            print("このチケットは削除されています")
-
-
-def ticket_copycreate(filepath, num=1, severnum=0):
-    with open(filepath, encoding="utf-8") as fh:
-        body = json.load(fh, object_pairs_hook=OrderedDict)
-    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/issues.json"
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
     }
-    for i in range(num):
-        for data in range(len(body)):
-            jdata = body[f"data{data}"]
-            jjdata = json.dumps(jdata)
-            r = requests.post(url, headers=myheaders, data=jjdata)
+    
+    r = requests.post(url, headers=myheaders, data=json.dumps(dict_data))
+    
 
+# 第二引数指定で個別取得、指定なしで一括取得
+def ticket_get(filepath, ticketname="", projectname="", portnum=0):
+    
+    offset=0
+    dict_data={}
+    while True:
+        if ticketname!="":
+            ticketname=f"&subject={ticketname}"
+        if projectname!="":
+            projectname=f"&project_id={projectname}"
+
+        index_url = f"http://{SERVER[portnum]}:{PORT[portnum]}/issues.json?offset={offset*100}&limit=100{projectname}{ticketname}&status_id=*&sort=id&include=relations,attachments,journals"
+        r = requests.get(index_url)
+        index_data = json.loads(r.text)
+        indcount = len(index_data["issues"])
+
+        try:
+            a= index_data['issues']
+            b= dict_data['issues']
+            b.extend(a)
+            dict_data['issues']=b
+        except:
+            dict_data=index_data
+            print("空のファイル?")
+        
+        
+        if indcount>=100:
+            offset+=1
+            continue
+        else:
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(dict_data, f, indent=2, ensure_ascii=False)
+            break
+    
+# 作成ができないバグ発生中。
+def ticket_create(projectname, filepath, severnum=0):
+    with open(filepath, encoding="utf-8") as fh:
+        body = json.load(fh, object_pairs_hook=OrderedDict)
+
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}/wiki.json?key={API_KEY[severnum]}"
+
+    myheaders = {
+        "Content-Type": "application/json",
+        "X-Redmine-API-Key": API_KEY[severnum],
+    }
+    
+    r = requests.post(url, headers=myheaders, data=json.dumps(body))
 
 def ticket_update(filepath, ticketnum, severnum=0):
     with open(filepath, "rb") as fh:
@@ -199,7 +199,6 @@ def ticket_update(filepath, ticketnum, severnum=0):
         "X-Redmine-API-Key": API_KEY[severnum],
     }
     r = requests.put(url, headers=myheaders, data=body)
-
 
 def time_entry(filepath, ticketnum, severnum=0):
     with open(filepath, "rb") as fh:
@@ -212,28 +211,66 @@ def time_entry(filepath, ticketnum, severnum=0):
     r = requests.post(url, headers=myheaders, data=body)
 
 
-def wiki_create_update(filepath, severnum=0):
-    with open(filepath, "rb") as fh:
-        jdata = json.load(fh)
+def wiki_get(filepath, projetname, wikiname="", portnum=0):
 
-    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{jdata['wiki_page']['project']}/wiki/{jdata['wiki_page']['title']}.json"
+        project=project_get(portnum)
+        if wiki_create!="":
+            indexurl = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects/{projetname}/wiki/{projetname}.json?key={API_KEY[portnum]}&include=relations,attachments,journals"
+        else:
+            indexurl = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects/{projetname}/wiki/index.json?key={API_KEY[portnum]}&include=relations,attachments,journals"
+        try:
+
+            r = requests.get(indexurl)
+            response_data = json.loads(r.text)
+            with open(filepath, "w", encoding="utf-8") as f:
+                json.dump(response_data, f, indent=2, ensure_ascii=False)
+
+            return response_data
+        except:
+            print("そのWikiは存在しません")
+
+# 作成ができないバグ発生中
+def wiki_create(projectname, filepath, severnum=0):
+    with open(filepath, encoding="utf-8") as fh:
+        body = json.load(fh, object_pairs_hook=OrderedDict)
+
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}/wiki.json?key={API_KEY[severnum]}"
+
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
     }
-    r = requests.put(url, headers=myheaders, data=json.dumps(jdata))
+    
+    r = requests.post(url, headers=myheaders, data=json.dumps(body))
+
+def wiki_create_update(filepath, severnum=0):
+    with open(filepath, "rb") as fh:
+        jdata = json.load(fh)
+
+    #url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{jdata['wiki_page']['project']}/wiki/{jdata['wiki_page']['title']}.json"
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/foo/wiki/{jdata['wiki_page']['title']}.json?key={API_KEY[severnum]}"
+    myheaders = {
+        "Content-Type": "application/json",
+        "X-Redmine-API-Key": API_KEY[severnum],
+    }
+    r = requests.post(url, headers=myheaders, data=json.dumps(jdata))
 
 
 def main():
     requests_log = logging.getLogger("requests.packages.urllib3")
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
-    # text = ticket_get(ticketnum=5)
-    # text = ticket_update("./issue_test.json", 1313, 0)
-    text = time_entry("./issue_test.json", 1313, 0)
-    # text = ticket_copycreate("./issue_get.json", 1, 0)
     # text = upload("./inu.jpg")
+    text = ticket_get("./issue_get.json", "testチケット1-2")
+    # text = ticket_copycreate("./issue_get.json")
+    # text = ticket_update("./issue_test.json", 11, 0)
+    # text = time_entry("./issue_test.json", 1313, 0)
     # text = download_url("http://localhost:3000/attachments/download/5")
+    # text = wiki_create_update("./wiki_test.json")
+    # text = wiki_get("./wiki_get.json", "foo")
+    # text = wiki_create("foo", "./wiki_get.json", 0)
+    # text = project_get()
+    # text = project_upload("./project_get.json", 0)
     print(text)
 
 

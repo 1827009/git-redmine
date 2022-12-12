@@ -1,0 +1,15 @@
+{
+    "projects": [
+      {
+        "id": 2,
+        "name": "bar",
+        "identifier": "bar",
+        "description": "test2",
+        "status": 1,
+        "is_public": true,
+        "inherit_members": false,
+        "created_on": "2022-12-01T06:03:34Z",
+        "updated_on": "2022-12-01T06:03:34Z"
+      }
+    ]
+}
