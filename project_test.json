@@ -2,8 +2,8 @@
     "projects": [
       {
         "id": 2,
-        "name": "bar",
-        "identifier": "bar",
+        "name": "bard",
+        "identifier": "bard",
         "description": "test2",
         "status": 1,
         "is_public": true,

@@ -1,43 +1,8 @@
 {
-  "wiki_pages": [
-    {
-      "title": "Wiki",
-      "version": 4,
-      "created_on": "2022-12-01T07:20:04Z",
-      "updated_on": "2022-12-06T08:01:52Z"
-    },
-    {
-      "title": "Wiki2",
-      "parent": {
-        "title": "Wiki"
-      },
-      "version": 1,
-      "created_on": "2022-12-06T07:58:41Z",
-      "updated_on": "2022-12-06T07:58:41Z"
-    },
-    {
-      "title": "WikiTest",
-      "parent": {
-        "title": "Wiki"
-      },
-      "version": 1,
-      "created_on": "2022-12-01T07:50:34Z",
-      "updated_on": "2022-12-01T07:50:34Z"
-    },
-    {
-      "title": "ああああああああああああああああ",
-      "parent": {
-        "title": "Wiki"
-      },
-      "version": 1,
-      "created_on": "2022-12-06T08:02:31Z",
-      "updated_on": "2022-12-06T08:02:31Z"
-    },
-    {
-      "title": "新しいWikiTest",
-      "version": 1,
-      "created_on": "2022-12-01T07:49:17Z",
-      "updated_on": "2022-12-01T07:49:17Z"
-    }
-  ]
+  "wiki_page": 
+  {
+    "title": "Wikiなんだぜ",
+    "created_on": "2022-12-01T07:20:04Z",
+    "updated_on": "2022-12-06T08:01:52Z"
+  }
 }

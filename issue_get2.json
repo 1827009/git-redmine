@@ -1,0 +1,72 @@
+{
+    "data0": {
+      "issue": {
+        "id": 1022,
+        "author": {
+          "id": 1,
+          "name": "Redmine Admin"
+        },
+        "subject": "テスト1-1",
+        "description": "テストコメント1-1",
+        "start_date": "2022-12-09",
+        "due_date": null,
+        "done_ratio": 0,
+        "is_private": false,
+        "estimated_hours": null,
+        "total_estimated_hours": null,
+        "created_on": "2022-12-09T05:17:28Z",
+        "updated_on": "2022-12-09T05:17:28Z",
+        "closed_on": null,
+        "journals": [],
+        "project_id": 1,
+        "status_id": 1,
+        "tracker_id": 1,
+        "priority_id": 1,
+        "assigned_to_id": 1,
+        "uploads": [
+          {
+            "id": 33,
+            "filename": "inu.jpg",
+            "filesize": 5963,
+            "content_type": "image/jpeg",
+            "description": "",
+            "content_url": "http://127.0.0.1:3000/attachments/download/33/inu.jpg",
+            "thumbnail_url": "http://127.0.0.1:3000/attachments/thumbnail/33",
+            "author": {
+              "id": 1,
+              "name": "Redmine Admin"
+            },
+            "created_on": "2022-12-09T05:17:26Z",
+            "token": "33.1b2886d7be2f42e3e99759c5f9aabfb4bad7bd8a4e86568117e30e44e70cac83"
+          }
+        ]
+      }
+    },
+    "data1": {
+      "issue": {
+        "id": 1023,
+        "author": {
+          "id": 1,
+          "name": "Redmine Admin"
+        },
+        "subject": "testチケット1-2",
+        "description": "チケットコメント1-2",
+        "start_date": "2022-12-09",
+        "due_date": null,
+        "done_ratio": 0,
+        "is_private": false,
+        "estimated_hours": null,
+        "total_estimated_hours": null,
+        "created_on": "2022-12-09T08:12:17Z",
+        "updated_on": "2022-12-09T08:12:17Z",
+        "closed_on": null,
+        "journals": [],
+        "project_id": 1,
+        "status_id": 1,
+        "tracker_id": 1,
+        "priority_id": 1,
+        "assigned_to_id": 1,
+        "uploads": []
+      }
+    }
+  }

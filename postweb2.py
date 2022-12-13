@@ -110,24 +110,24 @@ def countticket(getnum=0):
     response_data = json.loads(r.text)
     return response_data["issues"][0]["id"]
 
-# プロジェクト名指定でプロジェクトのjson、未指定でプロジェクトの一覧を取得
-def project_get(projectname="", portnum=0):
+# 取得したデータを書き込むjsonファイルを指定, projectname指定で個別取得、未指定で一括取得 送信先に同名のプロジェクトがある場合作成されない
+def project_get(filepath, projectname="", severnum=0):
     if projectname == "":
-        url = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects.json?key={API_KEY[portnum]}"
+        url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects.json?key={API_KEY[severnum]}"
     else:
-        url = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects/{projectname}.json?key={API_KEY[portnum]}"
+        url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}.json?key={API_KEY[severnum]}"
     try:
         r = requests.get(url)
         response_data = json.loads(r.text)
         
-        with open("./project_get.json", "w", encoding="utf-8") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             json.dump(response_data, f, indent=2, ensure_ascii=False)
-        return response_data['projects']
+        return response_data
 
     except:
         print("プロジェクトは存在しません")
 
-# 作成ができないバグ発生中
+# 作成するjsonファイルを指定
 def project_upload(projectpash, severnum=0):
     with open(projectpash, encoding="utf-8") as f:
         dict_data = json.load(f, object_pairs_hook=OrderedDict)
@@ -141,8 +141,8 @@ def project_upload(projectpash, severnum=0):
     
     r = requests.post(url, headers=myheaders, data=json.dumps(dict_data))
     
-
-# 第二引数指定で個別取得、指定なしで一括取得
+    
+# 取得したデータを書き込むjsonファイルを指定, ticketname指定で個別取得、指定なしで一括取得, projectname指定でプロジェクト単位で取得、指定なしで一括取得
 def ticket_get(filepath, ticketname="", projectname="", portnum=0):
     
     offset=0
@@ -158,15 +158,60 @@ def ticket_get(filepath, ticketname="", projectname="", portnum=0):
         index_data = json.loads(r.text)
         indcount = len(index_data["issues"])
 
-        try:
-            a= index_data['issues']
-            b= dict_data['issues']
-            b.extend(a)
-            dict_data['issues']=b
-        except:
-            dict_data=index_data
-            print("空のファイル?")
-        
+        for i in range(indcount):
+            data={}
+            data["issue"]=index_data["issues"][i]
+
+            # projectid setting
+            try:
+                data["issue"]["project_id"] = data["issue"]["project"]["id"]
+                del data["issue"]["project"]
+            except:
+                print("projectなし")
+
+            # statusid setting
+            try:
+                data["issue"]["status_id"] = data["issue"]["status"]["id"]
+                del data["issue"]["status"]
+            except:
+                print("statusなし")
+
+            # trackerid setting
+            try:
+                data["issue"]["tracker_id"] = data["issue"]["tracker"]["id"]
+                del data["issue"]["tracker"]
+            except:
+                print("trackerなし")
+
+            # priorityid setting
+            try:
+                data["issue"]["priority_id"] = data["issue"]["priority"]["id"]
+                del data["issue"]["priority"]
+            except:
+                print("priorityidなし")
+
+            # assigned_to id setting
+            try:
+                data["issue"]["assigned_to_id"] = data["issue"]["assigned_to"]["id"]
+                del data["issue"]["assigned_to"]
+            except:
+                print("assignedなし")
+
+            # attachments setting
+            try:
+                data["issue"]["uploads"] = data["issue"]["attachments"]
+                # dict_set[i]["uploads"][0]["filename"]
+                # dict_set[i]["uploads"][0]["filename"] = dict_set["issue"]["attachments"][0]["filename"]
+                # dict_set[i]["uploads"][0]["content_type"] = dict_set["issue"]["attachments"][0]["content_type"]
+                # dict_set[i]["uploads"][0]["description"] = dict_set["issue"]["attachments"][0]["description"]
+                file = download_url(data["issue"]["attachments"][0]["content_url"], portnum)
+                text = upload(f"./{file}", 1)
+                data["issue"]["uploads"][0]["token"] = text["upload"]["token"]
+                del data["issue"]["attachments"]
+            except:
+                print("添付ファイルなし")
+
+            dict_data[f"data{offset*100+i}"]=data
         
         if indcount>=100:
             offset+=1
@@ -176,19 +221,25 @@ def ticket_get(filepath, ticketname="", projectname="", portnum=0):
                 json.dump(dict_data, f, indent=2, ensure_ascii=False)
             break
     
-# 作成ができないバグ発生中。
-def ticket_create(projectname, filepath, severnum=0):
+    return dict_data
+    
+# 作成するjsonファイルを指定, projectname指定でチケットのproject_idを書き換えてサーバーに作成、未指定でidに合わせたプロジェクトに作成
+def ticket_create(filepath, projectname="", severnum=0):
+
     with open(filepath, encoding="utf-8") as fh:
         body = json.load(fh, object_pairs_hook=OrderedDict)
-
-    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}/wiki.json?key={API_KEY[severnum]}"
-
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/issues.json"
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
     }
-    
-    r = requests.post(url, headers=myheaders, data=json.dumps(body))
+    for data in range(len(body)):
+        jdata = body[f"data{data}"]
+        if projectname!="":
+            p=project_get(projectname, severnum)
+            jdata["issue"]["project_id"]=p['project']["id"]
+        jjdata = json.dumps(jdata)
+        r = requests.post(url, headers=myheaders, data=jjdata)
 
 def ticket_update(filepath, ticketnum, severnum=0):
     with open(filepath, "rb") as fh:
@@ -210,27 +261,24 @@ def time_entry(filepath, ticketnum, severnum=0):
     }
     r = requests.post(url, headers=myheaders, data=body)
 
+# 取得したデータを書き込むjsonファイルを指定, wikiname指定で個別取得、指定なしで一括取得
+def wiki_get(filepath, projetname, wikiname="", severnum=0):
+    if wikiname!="":
+        wikiname=f"/{wikiname}"
 
-def wiki_get(filepath, projetname, wikiname="", portnum=0):
+    indexurl = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projetname}/wiki{wikiname}.json?key={API_KEY[severnum]}&include=relations,attachments,journals"
+    try:
+        r = requests.get(indexurl)
+        response_data = json.loads(r.text)
+        with open(filepath, "w", encoding="utf-8") as f:
+            json.dump(response_data, f, indent=2, ensure_ascii=False)
 
-        project=project_get(portnum)
-        if wiki_create!="":
-            indexurl = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects/{projetname}/wiki/{projetname}.json?key={API_KEY[portnum]}&include=relations,attachments,journals"
-        else:
-            indexurl = f"http://{SERVER[portnum]}:{PORT[portnum]}/projects/{projetname}/wiki/index.json?key={API_KEY[portnum]}&include=relations,attachments,journals"
-        try:
-
-            r = requests.get(indexurl)
-            response_data = json.loads(r.text)
-            with open(filepath, "w", encoding="utf-8") as f:
-                json.dump(response_data, f, indent=2, ensure_ascii=False)
-
-            return response_data
-        except:
-            print("そのWikiは存在しません")
+        return response_data
+    except:
+        print("そのWikiは存在しません")
 
 # 作成ができないバグ発生中
-def wiki_create(projectname, filepath, severnum=0):
+def wiki_create(filepath, projectname, severnum=0):
     with open(filepath, encoding="utf-8") as fh:
         body = json.load(fh, object_pairs_hook=OrderedDict)
 
@@ -261,16 +309,17 @@ def main():
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
     # text = upload("./inu.jpg")
-    text = ticket_get("./issue_get.json", "testチケット1-2")
-    # text = ticket_copycreate("./issue_get.json")
+    # text = ticket_get("./issue_get.json")
+    # text=ticket_create("foo", "./issue_get.json")
+    # text = ticket_create("./issue_get.json", "foo")
     # text = ticket_update("./issue_test.json", 11, 0)
     # text = time_entry("./issue_test.json", 1313, 0)
     # text = download_url("http://localhost:3000/attachments/download/5")
     # text = wiki_create_update("./wiki_test.json")
     # text = wiki_get("./wiki_get.json", "foo")
-    # text = wiki_create("foo", "./wiki_get.json", 0)
+    text = wiki_create("./wiki_get.json", "foo", 1)
     # text = project_get()
-    # text = project_upload("./project_get.json", 0)
+    # text = project_upload("./project_get.json", 1)
     print(text)
 
 
