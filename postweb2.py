@@ -75,34 +75,6 @@ def download_url(filepath, get=0):
     with open(local_filename, "wb") as aaa:
         aaa.write(res_data.content)
     return local_filename
-    # with open(local_filename, "rb") as fh:
-    #     body = fh.read()
-
-    # assert os.path.exists(local_filename)
-    # path, name = os.path.split(local_filename)
-    # base, ext = os.path.splitext(name)
-
-    # myheaders = {
-    #     "Content-Type": "application/octet-stream",
-    #     "X-Redmine-API-Key": API_KEY[send],
-    # }
-    # upurl = f"http://{SERVER}:{PORT[send]}/uploads.json?filename={name}"
-
-    # log.debug(f"upurl {upurl}")
-    # r = requests.post(upurl, headers=myheaders, data=body)
-    # expected_result = 201
-    # if r.status_code != expected_result:
-    #     raise RuntimeError(f"{requests.code}")
-    # log.debug(r.text)
-    # response_data = literal_eval(r.content.decode("utf8"))
-
-    # with open("./token_data.json") as f:
-    #     d_update = json.load(f, object_pairs_hook=OrderedDict)
-
-    # d_update[f"data{len(d_update)}"] = response_data
-    # with open("./token_data.json", "w") as f:
-    #     json.dump(d_update, f, indent=2, ensure_ascii=False)
-
 
 def countticket(getnum=0):
     url = f"http://{SERVER[getnum]}:{PORT[getnum]}/issues.json"
@@ -128,7 +100,7 @@ def project_get(filepath, projectname="", severnum=0):
         print("プロジェクトは存在しません")
 
 # 作成するjsonファイルを指定
-def project_upload(projectpash, severnum=0):
+def project_create(projectpash, severnum=0):
     with open(projectpash, encoding="utf-8") as f:
         dict_data = json.load(f, object_pairs_hook=OrderedDict)
 
@@ -223,7 +195,7 @@ def ticket_get(filepath, ticketname="", projectname="", portnum=0):
     
     return dict_data
     
-# 作成するjsonファイルを指定, projectname指定でチケットのproject_idを書き換えてサーバーに作成、未指定でidに合わせたプロジェクトに作成
+# 作成するjsonファイルを指定, projectname指定でチケットのproject_idを書き換えて作成、未指定でidに合わせたプロジェクトに作成
 def ticket_create(filepath, projectname="", severnum=0):
 
     with open(filepath, encoding="utf-8") as fh:
@@ -236,7 +208,7 @@ def ticket_create(filepath, projectname="", severnum=0):
     for data in range(len(body)):
         jdata = body[f"data{data}"]
         if projectname!="":
-            p=project_get(projectname, severnum)
+            p=project_get("./project_temp.json", projectname, severnum)
             jdata["issue"]["project_id"]=p['project']["id"]
         jjdata = json.dumps(jdata)
         r = requests.post(url, headers=myheaders, data=jjdata)
@@ -278,7 +250,7 @@ def wiki_get(filepath, projetname, wikiname="", severnum=0):
             except:
                 print("Wiki名指定なし")
 
-            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projetname}/wiki/{wikiname}.json?key={API_KEY[severnum]}"
+            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projetname}/wiki/{wikiname}.json?key={API_KEY[severnum]}&include=attachments"
             r = requests.get(url)
 
             try:
@@ -290,6 +262,17 @@ def wiki_get(filepath, projetname, wikiname="", severnum=0):
             del response_data[f"data{i}"]["wiki_page"]["comments"]
             del response_data[f"data{i}"]["wiki_page"]["created_on"]
             del response_data[f"data{i}"]["wiki_page"]["updated_on"]
+
+            # attachments setting
+            try:
+                response_data[f"data{i}"]["wiki_page"]["uploads"] = response_data[f"data{i}"]["wiki_page"]["attachments"]
+                for j in range(len(response_data[f"data{i}"]["wiki_page"]["attachments"])):
+                    file = download_url(response_data[f"data{i}"]["wiki_page"]["attachments"][j]["content_url"], severnum)
+                    text = upload(f"./{file}", 1)
+                    response_data[f"data{i}"]["wiki_page"]["uploads"][j]["token"] = text["upload"]["token"]
+                del response_data[f"data{i}"]["wiki_page"]["attachments"]
+            except:
+                print("添付ファイルなし")
 
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(response_data, f, indent=2, ensure_ascii=False)
@@ -321,17 +304,18 @@ def main():
     requests_log = logging.getLogger("requests.packages.urllib3")
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
+
+    text = project_get("./project_get.json", "foo", 0)
+    text = project_create("./project_get.json", 1)
+    text = ticket_get("./issue_get.json")
+    text = ticket_create("./issue_get.json", 1)
+    text = wiki_get("./wiki_get.json", "foo", severnum=0)
+    text = wiki_create_update("./wiki_get.json", "foo", 1)
+    
     # text = upload("./inu.jpg")
-    # text = ticket_get("./issue_get.json")
-    # text=ticket_create("foo", "./issue_get.json")
-    # text = ticket_create("./issue_get.json", "foo")
     # text = ticket_update("./issue_test.json", 11, 0)
     # text = time_entry("./issue_test.json", 1313, 0)
     # text = download_url("http://localhost:3000/attachments/download/5")
-    text = wiki_create_update("./wiki_get.json", "foo", 1)
-    #text = wiki_get("./wiki_get.json", "foo")
-    # text = project_get()
-    text = project_upload("./project_get.json", 1)
     print(text)
 
 

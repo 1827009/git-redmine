@@ -1,110 +1,58 @@
 {
   "data0": {
     "wiki_page": {
-      "title": "Wiki12",
-      "text": "This is a wiki testdadadaddada ",
-      "version": 5,
+      "title": "Wiki",
+      "text": "h1. Wiki",
+      "version": 1,
       "author": {
         "id": 1,
         "name": "Redmine Admin"
-      }
+      },
+      "uploads": [
+        {
+          "id": 36,
+          "filename": "inu.jpg",
+          "filesize": 5963,
+          "content_type": "image/jpeg",
+          "description": "",
+          "content_url": "http://127.0.0.1:3000/attachments/download/36/inu.jpg",
+          "thumbnail_url": "http://127.0.0.1:3000/attachments/thumbnail/36",
+          "author": {
+            "id": 1,
+            "name": "Redmine Admin"
+          },
+          "created_on": "2022-12-14T08:17:30Z",
+          "token": "54.1b2886d7be2f42e3e99759c5f9aabfb4bad7bd8a4e86568117e30e44e70cac83"
+        }
+      ]
     }
   },
   "data1": {
     "wiki_page": {
-      "title": "Wiki22",
-      "parent": {
-        "title": "Wiki"
+      "title": "うぃき２",
+      "text": "h1. うぃき２",
+      "version": 1,
+      "author": {
+        "id": 1,
+        "name": "Redmine Admin"
       },
-      "text": "This is a wiki testdadadaddada ",
-      "version": 2,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
-    }
-  },
-  "data2": {
-    "wiki_page": {
-      "title": "Wiki23",
-      "text": "This is a wiki testdadadaddada ",
-      "version": 1,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
-    }
-  },
-  "data3": {
-    "wiki_page": {
-      "title": "Wiki24",
-      "text": "This is a wiki testdadadaddada ",
-      "version": 1,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
-    }
-  },
-  "data5": {
-    "wiki_page": {
-      "title": "Wiki26",
-      "text": "h1. Wiki\r\nああああああああああああああああ",
-      "version": 4,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
-    }
-  },
-  "data6": {
-    "wiki_page": {
-      "title": "Wiki27",
-      "text": "This is a wiki testdadadaddada ",
-      "version": 5,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
-    }
-  },
-  "data7": {
-    "wiki_page": {
-      "title": "WikiTest2",
-      "parent": {
-        "title": "Wiki"
-      },
-      "text": "h1. WikiTest\r\n\r\nてすとてすと\r\n",
-      "version": 1,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
-    }
-  },
-  "data8": {
-    "wiki_page": {
-      "title": "2ああああああああああああああああ",
-      "parent": {
-        "title": "Wiki"
-      },
-      "text": "h1. ああああああああああああああああ\r\nてすとおおおおおおおおおおお\r\n添付付き",
-      "version": 1,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
-    }
-  },
-  "data9": {
-    "wiki_page": {
-      "title": "3新しいWikiTest",
-      "text": "h1. 新しいWikiTest",
-      "version": 1,
-      "author": {
-        "id": 1,
-        "name": "Redmine Admin"
-      }
+      "uploads": [
+        {
+          "id": 37,
+          "filename": "inu.jpg",
+          "filesize": 5963,
+          "content_type": "image/jpeg",
+          "description": "",
+          "content_url": "http://127.0.0.1:3000/attachments/download/37/inu.jpg",
+          "thumbnail_url": "http://127.0.0.1:3000/attachments/thumbnail/37",
+          "author": {
+            "id": 1,
+            "name": "Redmine Admin"
+          },
+          "created_on": "2022-12-14T08:17:50Z",
+          "token": "55.1b2886d7be2f42e3e99759c5f9aabfb4bad7bd8a4e86568117e30e44e70cac83"
+        }
+      ]
     }
   }
 }
