@@ -263,45 +263,58 @@ def time_entry(filepath, ticketnum, severnum=0):
 
 # 取得したデータを書き込むjsonファイルを指定, wikiname指定で個別取得、指定なしで一括取得
 def wiki_get(filepath, projetname, wikiname="", severnum=0):
-    if wikiname!="":
-        wikiname=f"/{wikiname}"
-
-    indexurl = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projetname}/wiki{wikiname}.json?key={API_KEY[severnum]}&include=relations,attachments,journals"
     try:
-        r = requests.get(indexurl)
-        response_data = json.loads(r.text)
+        count=1
+        if wikiname=="":
+            indexurl = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projetname}/wiki/index.json?key={API_KEY[severnum]}"
+            ir = requests.get(indexurl)
+            index_data=json.loads(ir.text)
+            count=len(index_data["wiki_pages"])
+
+        response_data={}
+        for i in range(count):
+            try:
+                wikiname=index_data["wiki_pages"][i]["title"]
+            except:
+                print("Wiki名指定なし")
+
+            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projetname}/wiki/{wikiname}.json?key={API_KEY[severnum]}"
+            r = requests.get(url)
+
+            try:
+                response_data[f"data{i}"] = json.loads(r.text)
+            except:
+                print(f"{wikiname}は恐らく中身が存在しません")
+                continue
+
+            del response_data[f"data{i}"]["wiki_page"]["comments"]
+            del response_data[f"data{i}"]["wiki_page"]["created_on"]
+            del response_data[f"data{i}"]["wiki_page"]["updated_on"]
+
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(response_data, f, indent=2, ensure_ascii=False)
-
         return response_data
+
     except:
         print("そのWikiは存在しません")
 
-# 作成ができないバグ発生中
-def wiki_create(filepath, projectname, severnum=0):
-    with open(filepath, encoding="utf-8") as fh:
-        body = json.load(fh, object_pairs_hook=OrderedDict)
-
-    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}/wiki.json?key={API_KEY[severnum]}"
-
-    myheaders = {
-        "Content-Type": "application/json",
-        "X-Redmine-API-Key": API_KEY[severnum],
-    }
-    
-    r = requests.post(url, headers=myheaders, data=json.dumps(body))
-
-def wiki_create_update(filepath, severnum=0):
+def wiki_create_update(filepath, projectname, severnum=0):
     with open(filepath, "rb") as fh:
         jdata = json.load(fh)
 
-    #url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{jdata['wiki_page']['project']}/wiki/{jdata['wiki_page']['title']}.json"
-    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/foo/wiki/{jdata['wiki_page']['title']}.json?key={API_KEY[severnum]}"
-    myheaders = {
-        "Content-Type": "application/json",
-        "X-Redmine-API-Key": API_KEY[severnum],
-    }
-    r = requests.post(url, headers=myheaders, data=json.dumps(jdata))
+    for i in range(len(jdata)):
+        try:
+            d=jdata[f"data{i}"]["wiki_page"]["title"]
+            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/foo/wiki/{d}.json?key={API_KEY[severnum]}"        
+
+            myheaders = {
+                "Content-Type": "application/json",
+                "X-Redmine-API-Key": API_KEY[severnum],
+            }
+            r = requests.put(url, headers=myheaders, data=json.dumps(jdata[f"data{i}"]))
+        except:
+            print(f"恐らく中身が存在しないWiki data{i} をスキップしました")
+            continue
 
 
 def main():
@@ -315,11 +328,10 @@ def main():
     # text = ticket_update("./issue_test.json", 11, 0)
     # text = time_entry("./issue_test.json", 1313, 0)
     # text = download_url("http://localhost:3000/attachments/download/5")
-    # text = wiki_create_update("./wiki_test.json")
-    # text = wiki_get("./wiki_get.json", "foo")
-    text = wiki_create("./wiki_get.json", "foo", 1)
+    text = wiki_create_update("./wiki_get.json", "foo", 1)
+    #text = wiki_get("./wiki_get.json", "foo")
     # text = project_get()
-    # text = project_upload("./project_get.json", 1)
+    text = project_upload("./project_get.json", 1)
     print(text)
 
 
