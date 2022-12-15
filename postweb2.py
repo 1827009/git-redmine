@@ -47,12 +47,17 @@ def upload(filepath, servernum=0):
     log.debug(r.text)
     response_data = literal_eval(r.content.decode("utf8"))
 
-    with open("./token_data.json") as f:
-        d_update = json.load(f, object_pairs_hook=OrderedDict)
+    d_update={}
+    try:
+        with open("./token_data.json") as f:
+            d_update = json.load(f, object_pairs_hook=OrderedDict)
 
-    d_update[f"data{len(d_update)}"] = response_data
-    with open("./token_data.json", "w") as f:
-        json.dump(d_update, f, indent=2, ensure_ascii=False)
+        d_update[f"data{len(d_update)}"] = response_data
+        with open("./token_data.json", "w") as f:
+            json.dump(d_update, f, indent=2, ensure_ascii=False)
+
+    except:
+        print("Uploadデータなし")
     return response_data
 
 
@@ -84,14 +89,21 @@ def countticket(getnum=0):
 
 # 取得したデータを書き込むjsonファイルを指定, projectname指定で個別取得、未指定で一括取得 送信先に同名のプロジェクトがある場合作成されない
 def project_get(filepath, projectname="", severnum=0):
-    if projectname == "":
-        url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects.json?key={API_KEY[severnum]}"
-    else:
-        url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}.json?key={API_KEY[severnum]}"
     try:
-        r = requests.get(url)
-        response_data = json.loads(r.text)
-        
+        response_data={}
+        if projectname == "":
+            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects.json?key={API_KEY[severnum]}"
+            r = requests.get(url)
+            rdata = json.loads(r.text)
+
+            for i in range(len(rdata["projects"])):
+                response_data[f"data{i}"]={}
+                response_data[f"data{i}"]["project"]=rdata["projects"][i]
+        else:
+            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}.json?key={API_KEY[severnum]}"
+            r = requests.get(url)
+            response_data[f"data0"] = json.loads(r.text)
+
         with open(filepath, "w", encoding="utf-8") as f:
             json.dump(response_data, f, indent=2, ensure_ascii=False)
         return response_data
@@ -110,12 +122,11 @@ def project_create(projectpash, severnum=0):
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
     }
-    
-    r = requests.post(url, headers=myheaders, data=json.dumps(dict_data))
-    
+    for i in range(len(dict_data)):        
+        r = requests.post(url, headers=myheaders, data=json.dumps(dict_data[f"data{i}"]))    
     
 # 取得したデータを書き込むjsonファイルを指定, ticketname指定で個別取得、指定なしで一括取得, projectname指定でプロジェクト単位で取得、指定なしで一括取得
-def ticket_get(filepath, ticketname="", projectname="", portnum=0):
+def ticket_get(filepath, ticketname="", projectname="", severnum=0):
     
     offset=0
     dict_data={}
@@ -125,7 +136,7 @@ def ticket_get(filepath, ticketname="", projectname="", portnum=0):
         if projectname!="":
             projectname=f"&project_id={projectname}"
 
-        index_url = f"http://{SERVER[portnum]}:{PORT[portnum]}/issues.json?offset={offset*100}&limit=100{projectname}{ticketname}&status_id=*&sort=id&include=relations,attachments,journals"
+        index_url = f"http://{SERVER[severnum]}:{PORT[severnum]}/issues.json?offset={offset*100}&limit=100{projectname}{ticketname}&status_id=*&sort=id&include=relations,attachments,journals"
         r = requests.get(index_url)
         index_data = json.loads(r.text)
         indcount = len(index_data["issues"])
@@ -137,6 +148,7 @@ def ticket_get(filepath, ticketname="", projectname="", portnum=0):
             # projectid setting
             try:
                 data["issue"]["project_id"] = data["issue"]["project"]["id"]
+                data["issue"]["project_name"] = data["issue"]["project"]["name"]
                 del data["issue"]["project"]
             except:
                 print("projectなし")
@@ -176,8 +188,8 @@ def ticket_get(filepath, ticketname="", projectname="", portnum=0):
                 # dict_set[i]["uploads"][0]["filename"] = dict_set["issue"]["attachments"][0]["filename"]
                 # dict_set[i]["uploads"][0]["content_type"] = dict_set["issue"]["attachments"][0]["content_type"]
                 # dict_set[i]["uploads"][0]["description"] = dict_set["issue"]["attachments"][0]["description"]
-                file = download_url(data["issue"]["attachments"][0]["content_url"], portnum)
-                text = upload(f"./{file}", 1)
+                file = download_url(data["issue"]["attachments"][0]["content_url"], severnum)
+                text = upload(f"./{file}", severnum)
                 data["issue"]["uploads"][0]["token"] = text["upload"]["token"]
                 del data["issue"]["attachments"]
             except:
@@ -210,18 +222,42 @@ def ticket_create(filepath, projectname="", severnum=0):
         if projectname!="":
             p=project_get("./project_temp.json", projectname, severnum)
             jdata["issue"]["project_id"]=p['project']["id"]
+        else:
+            prjurl = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects.json?key={API_KEY[severnum]}"
+            p=requests.get(prjurl)
+            projects=json.loads(p.text)
+            for i in range(len(projects["projects"])):
+                if jdata["issue"]["project_name"]==projects["projects"][i]["name"]:
+                    jdata["issue"]["project_id"]=projects["projects"][i]["id"]
+                    break
+
         jjdata = json.dumps(jdata)
         r = requests.post(url, headers=myheaders, data=jjdata)
 
-def ticket_update(filepath, ticketnum, severnum=0):
-    with open(filepath, "rb") as fh:
-        body = fh.read()
-    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/issues/{ticketnum}.json"
+def ticket_update(filepath, projectname="", severnum=0):
+    with open(filepath, encoding="utf-8") as fh:
+        body = json.load(fh, object_pairs_hook=OrderedDict)
+    url = f"http://{SERVER[severnum]}:{PORT[severnum]}/issues.json"
     myheaders = {
         "Content-Type": "application/json",
         "X-Redmine-API-Key": API_KEY[severnum],
     }
-    r = requests.put(url, headers=myheaders, data=body)
+    for data in range(len(body)):
+        jdata = body[f"data{data}"]
+        if projectname!="":
+            p=project_get("./project_temp.json", projectname, severnum)
+            jdata["issue"]["project_id"]=p['project']["id"]
+        else:
+            prjurl = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects.json?key={API_KEY[severnum]}"
+            p=requests.get(prjurl)
+            projects=json.loads(p.text)
+            for i in range(len(projects["projects"])):
+                if jdata["issue"]["project_name"]==projects["projects"][i]["name"]:
+                    jdata["issue"]["project_id"]=projects["projects"][i]["id"]
+                    break
+
+        jjdata = json.dumps(jdata)
+        r = requests.put(url, headers=myheaders, data=body)
 
 def time_entry(filepath, ticketnum, severnum=0):
     with open(filepath, "rb") as fh:
@@ -288,7 +324,7 @@ def wiki_create_update(filepath, projectname, severnum=0):
     for i in range(len(jdata)):
         try:
             d=jdata[f"data{i}"]["wiki_page"]["title"]
-            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/foo/wiki/{d}.json?key={API_KEY[severnum]}"        
+            url = f"http://{SERVER[severnum]}:{PORT[severnum]}/projects/{projectname}/wiki/{d}.json?key={API_KEY[severnum]}"        
 
             myheaders = {
                 "Content-Type": "application/json",
@@ -305,11 +341,11 @@ def main():
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
 
-    text = project_get("./project_get.json", "foo", 0)
-    text = project_create("./project_get.json", 1)
-    text = ticket_get("./issue_get.json")
-    text = ticket_create("./issue_get.json", 1)
+    text = project_get("./project_get.json", severnum=0)
+    text = ticket_get("./issue_get.json", severnum=0)
     text = wiki_get("./wiki_get.json", "foo", severnum=0)
+    text = project_create("./project_get.json", severnum=1)
+    text = ticket_create("./issue_get.json", severnum=1)
     text = wiki_create_update("./wiki_get.json", "foo", 1)
     
     # text = upload("./inu.jpg")
